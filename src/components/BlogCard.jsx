@@ -1,7 +1,13 @@
 import { Link } from 'react-router-dom';
 import { EditPostIcon } from './Icons';
+import DOMPurify from 'dompurify';
+import parse from "html-react-parser"
+import { useMemo } from 'react';
 
 const BlogCard = ({ blogData }) => {
+    const sanitizedContent = useMemo(() => ({
+        __html: DOMPurify.sanitize(blogData.content)
+    }), [blogData.content]);
     return (
         <div className="flex flex-col gap-2 w-full">
             <div className='flex items-center justify-between'>
@@ -16,7 +22,7 @@ const BlogCard = ({ blogData }) => {
                     </div>
                 </div>
             </div>
-            <div className="text-md text-slate-300 line-clamp-3">{blogData.content}</div>
+            <div className="text-md text-slate-300 line-clamp-3">{parse(sanitizedContent.__html)} </div>
         </div>
     )
 }

@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import TagEditor from "../components/TagEditor";
 import { Editor } from "@tinymce/tinymce-react";
 import toast, { Toaster } from "react-hot-toast";
-import { DeleteIcon } from "../components/Icons";
+import { DeleteIcon, SaveIcon } from "../components/Icons";
 
 const PostEditor = () => {
     const { title } = useParams();
@@ -18,16 +18,77 @@ const PostEditor = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const tinyApiKey = import.meta.env.VITE_TINY_MCE_KEY;
+    const savePost = async () => {
+        try {
+            const postContent = editorRef.current.getContent();
+            if (titleRef.current.value === "") {
+                toast.error("Title cannot be empty")
+            }
+            else if (postContent === "") {
+                toast.error("Content cannot be empty");
+            }
+            else {
+                if (!title) {
+                    const postData = {
+                        title: titleRef.current.value,
+                        content: postContent
+                    }
+                    const res = await fetch(`${URL}/posts/new`,
+                        {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include', body: JSON.stringify(postData)
+                        });
+                    const data = await res.json();
+                    if (data.message) {
+                        tags.forEach(async (tag) => {
+                            const tagData = {
+                                tagName: tag.name,
+                                title: titleRef.current.value
+                            }
+                            await fetch(`${URL}/tags`, { method: "POST", headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(tagData) });
+                        })
+                        navigate("/blog");
+                    }
+                    if (data.error) {
+                        toast.error(data.error);
+                    }
+                }
+                else {
+                    const postData = {
+                        title: title,
+                        updatedTitle: titleRef.current.value,
+                        updatedContent: postContent
+                    }
+                    const res = await fetch(`${URL}/posts/update`,
+                        {
+                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include', body: JSON.stringify(postData)
+                        });
+                    const data = await res.json();
+                    if (data.error) {
+                        toast.error(data.message);
+                    }
+                    else if (data.message) {
+                        toast.success(data.message);
+                        navigate("/blog");
+                    }
+                }
+            }
+        } catch (err) {
+            console.error(err)
+        }
+    }
     const deletePost = async () => {
         try {
-            console.log(title);
-            const res = await fetch(`${URL}/posts/delete/${title}`, { method: "DELETE", headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
-            const data = await res.json();
-            if (data.message) {
-                navigate("/blog");
-            }
-            if (data.error) {
-                toast.error(data.error);
+            {
+                const res = await fetch(`${URL}/posts/delete/${title}`, { method: "DELETE", headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
+                const data = await res.json();
+                if (data.message) {
+                    navigate("/blog");
+                }
+                if (data.error) {
+                    toast.error(data.error);
+                }
             }
         } catch (err) {
             console.error(err);
@@ -35,7 +96,7 @@ const PostEditor = () => {
         }
     }
     const addTag = async () => {
-        if (tagRef.current.value) {
+        if (tagRef.current.value && title) {
             try {
                 const tagData = {
                     tagName: tagRef.current.value,
@@ -55,26 +116,37 @@ const PostEditor = () => {
             }
             catch (err) {
                 console.error(err)
-                setError("Error occurred while reaching server!")
+                toast.error("Error occurred while reaching server!")
             }
+        }
+        if (!title) {
+            const updatedTags = [...tags, { name: tagRef.current.value }];
+            tagRef.current.value = "";
+            setTags(updatedTags);
         }
     }
     const removeTag = async (name) => {
         if (name) {
             try {
-                const tagData = {
-                    tagName: name,
-                    title: title.split("-").join(" ")
+                if (title) {
+                    const tagData = {
+                        tagName: name,
+                        title: title.split("-").join(" ")
+                    }
+                    const res = await fetch(`${URL}/tags`, { method: "DELETE", headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(tagData) });
+                    if (res.ok === true) {
+                        const updatedTags = tags.filter((tag) => tag.name !== name);
+                        setTags(updatedTags);
+                    }
+                    const data = await res.json();
+                    if (data.error) {
+                        toast.error(data.error);
+                        return;
+                    }
                 }
-                const res = await fetch(`${URL}/tags`, { method: "DELETE", headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(tagData) });
-                if (res.ok === true) {
+                else {
                     const updatedTags = tags.filter((tag) => tag.name !== name);
-                    setTags(updatedTags);
-                }
-                const data = await res.json();
-                if (data.error) {
-                    toast.error(data.error);
-                    return;
+                    setTags(updatedTags)
                 }
             } catch (err) {
                 console.error(err);
@@ -118,7 +190,7 @@ const PostEditor = () => {
                     <div className={`flex flex-col gap-8 + ${isLoading ? "animate-pulse" : "animate-none"}`}>
                         <div className="flex gap-2 items-center">
                             <div className="rounded-2xl p-px bg-gradient-to-b dark:from-green-800 dark:to-blue-800 w-full">
-                                <div className="rounded-2xl p-1 cursor-pointer bg-black ease-in-out">
+                                <div className="rounded-2xl p-1 bg-black ease-in-out">
                                     <input ref={titleRef} placeholder="* Title" className=" w-full px-3 py-3 text-xl text-slate-200 rounded-2xl outline-none bg-black" />
                                 </div>
                             </div>
@@ -129,19 +201,15 @@ const PostEditor = () => {
                             init={{
                                 menubar: false,
                                 height: 600,
-                                content_style: `
-                            body {
-                                background-color: black;
-                                color: #f8fafc; 
-                                font-family: sans-serif;
-                            }
-                            `,
                             }}
                             apiKey={tinyApiKey}
                         />
                         <div className="flex justify-between items-start">
                             <TagEditor removeTag={removeTag} addTag={addTag} tagRef={tagRef} tags={tags} />
-                            <button className="bg-red-600 px-2 py-1 flex gap-1 rounded-lg text-white hover:bg-red-700 ease-linear duration-150" onClick={() => deletePost()}> Delete Post<DeleteIcon /></button>
+                            <div className="flex flex-col gap-4 p-2">
+                                {title && <button className="bg-red-600 px-2 py-1 flex gap-1 rounded-lg justify-center text-white hover:bg-red-700 ease-linear duration-150" onClick={() => deletePost()}> Delete Post<DeleteIcon /></button>}
+                                <button className="bg-green-600 px-2 py-1 flex gap-1 justify-center items-center rounded-lg text-white hover:bg-green-700 ease-linear duration-150 " onClick={() => savePost()}> Save Post<SaveIcon /></button>
+                            </div>
                         </div>
                         <Toaster />
                     </div>
@@ -151,4 +219,3 @@ const PostEditor = () => {
 }
 
 export default PostEditor
-

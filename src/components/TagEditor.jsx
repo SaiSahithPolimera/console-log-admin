@@ -13,7 +13,7 @@ const TagEditor = ({ removeTag, tagRef, addTag, tags }) => {
             </div>
             <div className="flex gap-2 items-center">
                 <div className="rounded-2xl p-px bg-gradient-to-b dark:from-green-800 dark:to-blue-800 lg:w-2/5 sm:w-3/5">
-                    <div className="rounded-2xl p-1 cursor-pointer bg-black ease-in-out">
+                    <div className="rounded-2xl p-1 bg-black ease-in-out">
                         <input ref={tagRef} onKeyDown={(e) => e.key === "Enter" ? addTag() : e} placeholder="new tag" className=" w-full px-2 py-2 text-md text-slate-200 rounded-2xl outline-none bg-black" />
                     </div>
                 </div>

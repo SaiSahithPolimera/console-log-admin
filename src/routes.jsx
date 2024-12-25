@@ -20,6 +20,11 @@ const routes = [
         element: <PostEditor />,
         errorElement: <ErrorPage />
 
+    },
+    {
+        path: "/blog/new",
+        element: <PostEditor />,
+        errorElement: <ErrorPage />
     }
 
 ]

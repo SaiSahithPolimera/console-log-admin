@@ -34,7 +34,6 @@ const Login = () => {
                     }
                     if (res.isAdmin === false) {
                         setErrors([{ message: "Sorry! only admin can access this page!" }])
-                        console.log(errors);
                     }
                 })
                 .catch((err) => { toast.error("Error occurred during login"); console.error(err); toast.dismiss(toastID); })
