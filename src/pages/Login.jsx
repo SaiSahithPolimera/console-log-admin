@@ -22,7 +22,6 @@ const Login = () => {
             fetch(`${URL}/login`, requestOptions)
                 .then(response => response.json())
                 .then((res) => {
-                    console.log(res);
                     toast.dismiss(toastID);
                     if (res.errors) {
                         setErrors(res.errors)
@@ -31,15 +30,14 @@ const Login = () => {
                         setErrors([res]);
                     }
                     if (res.isAdmin === true) {
-
                         navigate("/blog")
                     }
                     if (res.isAdmin === false) {
-                        setErrors([{message: "Sorry! only admin can access this page!"}])
+                        setErrors([{ message: "Sorry! only admin can access this page!" }])
                         console.log(errors);
                     }
                 })
-                .catch((err) => { setErrors("Error occurred during login"); console.error(err); toast.dismiss(toastID); })
+                .catch((err) => { toast.error("Error occurred during login"); console.error(err); toast.dismiss(toastID); })
         }
         else {
             toast.error("Please fill all the fields", { duration: 3000 });
@@ -64,11 +62,11 @@ const Login = () => {
                     })}
                     <button className='px-3 py-1 bg-white text-black self-center rounded-md hover:bg-slate-300 ease-in-out duration-150' onClick={(e) => loginUser(e)}>Log In</button>
                 </form>
-                    {errors && errors.map((err) => {
-                        if (err.message.toLowerCase().includes("admin")) {
-                            return <ErrorMessage message={err.message} key={err.message} />
-                        }
-                    })}
+                {errors && errors.map((err) => {
+                    if (err.message.toLowerCase().includes("admin")) {
+                        return <ErrorMessage message={err.message} key={err.message} />
+                    }
+                })}
             </div>
             <Toaster toastOptions={{ duration: 3000 }} />
         </section>

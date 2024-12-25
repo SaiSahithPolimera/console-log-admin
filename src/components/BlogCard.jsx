@@ -5,12 +5,14 @@ const BlogCard = ({ blogData }) => {
     return (
         <div className="flex flex-col gap-2 w-full">
             <div className='flex items-center justify-between'>
-                <Link to={/posts/ + blogData.title.split(" ").join("-")}>
+                <Link to={`/blog/${blogData.title.split(" ").join("-")}/edit`}>
                     <h1 className="text-2xl text-slate-200 font-bold hover:cursor-pointer">{blogData.title}</h1>
                 </Link>
-                <div class="rounded-2xl  p-px bg-gradient-to-b dark:from-green-800 dark:to-blue-800 ">
-                    <div class="rounded-2xl p-1 cursor-pointer dark:bg-gray-900 hover:bg-black ease-in-out duration-150">
-                        <EditPostIcon />
+                <div className="rounded-2xl  p-px bg-gradient-to-b dark:from-green-800 dark:to-blue-800 ">
+                    <div className="rounded-2xl p-1 cursor-pointer dark:bg-gray-900 hover:bg-black ease-in-out duration-150">
+                        <Link to={`/blog/${blogData.title.split(" ").join("-")}/edit`}>
+                            <EditPostIcon />
+                        </Link>
                     </div>
                 </div>
             </div>
