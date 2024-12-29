@@ -28,7 +28,7 @@ const Blog = () => {
 
         }
         fetchPostData();
-    }
+    }, []
     );
     return (
         <section className="min-h-screen gap-10 flex flex-col bg-black p-4 font-sans text-slate-300 lg:px-64">
