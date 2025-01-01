@@ -12,7 +12,7 @@ const Blog = () => {
     useEffect(() => {
         const fetchPostData = async () => {
             try {
-                const res = await fetch(URL);
+                const res = await fetch(URL, { method: 'GET' });
                 const data = await res.json();
                 setIsLoading(false);
                 if (data.error) {

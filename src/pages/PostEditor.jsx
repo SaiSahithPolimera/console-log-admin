@@ -33,7 +33,7 @@ const PostEditor = () => {
                         title: titleRef.current.value,
                         content: postContent
                     }
-                    const res = await fetch(`${URL}/posts/new`,
+                    const res = await fetch(`${URL}/post`,
                         {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             credentials: 'include', body: JSON.stringify(postData)
@@ -59,9 +59,9 @@ const PostEditor = () => {
                         updatedTitle: titleRef.current.value,
                         updatedContent: postContent
                     }
-                    const res = await fetch(`${URL}/posts/update`,
+                    const res = await fetch(`${URL}/post`,
                         {
-                            method: 'POST', headers: { 'Content-Type': 'application/json' },
+                            method: 'PUT', headers: { 'Content-Type': 'application/json' },
                             credentials: 'include', body: JSON.stringify(postData)
                         });
                     const data = await res.json();
@@ -81,7 +81,7 @@ const PostEditor = () => {
     const deletePost = async () => {
         try {
             {
-                const res = await fetch(`${URL}/posts/delete/${title}`, { method: "DELETE", headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
+                const res = await fetch(`${URL}/post/${title}`, { method: "DELETE", headers: { 'Content-Type': 'application/json' }, credentials: 'include' });
                 const data = await res.json();
                 if (data.message) {
                     navigate("/blog");
@@ -162,7 +162,7 @@ const PostEditor = () => {
             }
             setIsLoading(true);
             try {
-                const response = await fetch(`${URL}/post/${title}`)
+                const response = await fetch(`${URL}/post/${title}`, { method: "GET" })
                 const data = await response.json();
                 if (data) {
                     setContent(data.post.post.content);
