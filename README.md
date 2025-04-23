@@ -14,7 +14,7 @@ The CMS fetches the data from the self-coded RESTful blog API. The source code c
 
 ## Client
 
-The source code for the blog frontend can be found at [Client](https://github.com/SaiSahithPolimera/console-log-admin)
+The source code for the blog frontend can be found at [Client](https://github.com/SaiSahithPolimera/console-log-client)
 
 ## Technologies used
 
